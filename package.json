@@ -1,0 +1,38 @@
+{
+  "name": "guitar-practice-log",
+  "version": "0.0.1",
+  "description": "An App to log guitar practice sessions",
+  "author": {
+    "name": "Gh05d",
+    "email": "pc@vipfy.store",
+    "url": "http://gh05d.de"
+  },
+  "homepage": "http://gh05d.de",
+  "license": "MIT",
+  "keywords": [
+    "react-native",
+    "mobile",
+    "react",
+    "sass"
+  ],
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "react": "16.8.3",
+    "react-native": "0.59.4"
+  },
+  "devDependencies": {
+    "@babel/core": "7.4.3",
+    "@babel/runtime": "7.4.3",
+    "babel-jest": "24.7.1",
+    "jest": "24.7.1",
+    "metro-react-native-babel-preset": "0.53.1",
+    "react-test-renderer": "16.8.3"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
