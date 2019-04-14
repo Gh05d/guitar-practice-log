@@ -2,15 +2,14 @@ import React from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import axios from "axios";
 import { ScrollView } from "react-native-gesture-handler";
-import { WebView } from "react-native-webview";
 
 export default class MusicSearch extends React.Component {
-  state = { song: "", songs: [], loading: false, songId: null };
+  state = { song: "", songs: [], loading: false, songId: null, error: null };
 
   searchSong = async song => {
     await this.setState({ song });
 
-    if (this.state.song.length > 3) {
+    if (this.state.song.length > 2) {
       try {
         const res = await axios(
           `http://www.songsterr.com/a/ra/songs.json?pattern=${this.state.song}`
@@ -25,36 +24,42 @@ export default class MusicSearch extends React.Component {
     }
   };
 
-  fetchSong = async songId => {
-    await this.setState({ loading: true });
+  fetchSong = async (songId, title) => {
+    await this.setState({ loading: true, error: null });
+
     try {
-      const songUrl = await axios(
+      const { data } = await axios(
         `http://www.songsterr.com/a/wa/song?id=${songId}`
       );
 
-      await this.setState({ songUrl, loading: false });
+      await this.props.setSong({ title, data, type: "tab" });
+      this.props.closeModal();
     } catch (err) {
-      console.warn(err);
-      await this.setState({ loading: false });
+      console.log("LOG: MusicSearch -> fetchSong -> err", err);
+      await this.setState({ loading: false, error: err });
     }
   };
 
   render() {
-    if (this.state.songId) {
-      return (
-        <WebView
-          source={{
-            uri: `http://www.songsterr.com/a/wa/song?id=${this.state.songId}`
-          }}
-          onLoad={syntheticEvent => console.warn(syntheticEvent)}
-          onLoadEnd={syntheticEvent => console.warn("Ended", syntheticEvent)}
-          renderError={errorName => <Error name={errorName} />}
-          startInLoadingState={true}
-          renderLoading={() => <Text>Loading...</Text>}
-          //  style={{marginTop: 20}}
-        />
-      );
-    }
+    // if (this.state.songUrl) {
+    //   console.log(this.state.songUrl.data);
+    //   Object.keys(this.state.songUrl).map(url => console.log(url));
+    //   return (
+    //     <WebView
+    //       originWhitelist={["*"]}
+    //       source={{
+    //         html: this.state.songUrl.data
+    //         //  uri: `http://www.songsterr.com/a/wa/song?id=${this.state.songId}`
+    //       }}
+    //       onLoad={syntheticEvent => console.log(syntheticEvent)}
+    //       onLoadEnd={syntheticEvent => console.log("Ended", syntheticEvent)}
+    //       renderError={errorName => <Error name={errorName} />}
+    //       startInLoadingState={true}
+    //       renderLoading={() => <Text>Loading...</Text>}
+    //       //  style={{marginTop: 20}}
+    //     />
+    //   );
+    // }
 
     return (
       <View style={styles.container}>
@@ -64,6 +69,11 @@ export default class MusicSearch extends React.Component {
           autoFocus={true}
           onChangeText={this.searchSong}
         />
+
+        {this.state.error && (
+          <Text>Something went wrong. Couldn't save Song.</Text>
+        )}
+
         {this.state.songs.length > 0 && (
           <ScrollView>
             {this.state.songs.map(song => (
@@ -71,8 +81,10 @@ export default class MusicSearch extends React.Component {
                 <Button
                   disabled={this.state.loading}
                   title={`${song.artist.nameWithoutThePrefix} - ${song.title}`}
-                  color="lightcoral"
-                  onPress={() => this.setState({ songId: song.id })}
+                  color="lightblue"
+                  onPress={() => this.fetchSong(song.id, song.title)}
+
+                  // onPress={() => this.setState({ songId: song.id })}
                 />
               </View>
             ))}

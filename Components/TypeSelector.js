@@ -1,20 +1,39 @@
 import React from "react";
 import { View, Button, Text, StyleSheet } from "react-native";
 import MusicSearch from "./MusicSearch";
+import VideoSearch from "./VideoSearch";
 
 export default class TypeSelector extends React.Component {
-  state = { type: "", song: "" };
+  state = { type: null };
+
+  handlePress = () => {
+    if (this.state.type) {
+      this.setState({ type: null });
+    } else {
+      this.props.closeModal();
+    }
+  };
 
   renderType = type => {
     switch (type) {
       case "Youtube":
-        return <Text>{this.state.type}</Text>;
+        return (
+          <VideoSearch
+            closeModal={this.props.closeModal}
+            setVideo={this.props.saveItem}
+          />
+        );
 
       case "Pdf":
         return <Text>{this.state.type}</Text>;
 
       case "Songsterr":
-        return <MusicSearch />;
+        return (
+          <MusicSearch
+            closeModal={this.props.closeModal}
+            setSong={this.props.saveItem}
+          />
+        );
     }
   };
 
@@ -42,8 +61,8 @@ export default class TypeSelector extends React.Component {
         <View style={styles.cancel}>
           <Button
             color="crimson"
-            title="Cancel"
-            onPress={this.props.closeModal}
+            title={this.state.type ? "Back" : "Cancel"}
+            onPress={this.handlePress}
           />
         </View>
       </View>
