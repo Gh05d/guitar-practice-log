@@ -6,4 +6,3 @@ export default class Lection extends React.Component {
     return <Text>{this.props.navigation.getParam("name")}</Text>;
   }
 }
-//  this.props.navigation.setParams({ lectionTitle: lections.name });

@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Navigation from "./Navigation";
-
+import Timer from "./Timer";
 export default class Home extends React.Component {
   static navigationOptions = {
     title: "Home"
@@ -15,6 +15,7 @@ export default class Home extends React.Component {
           <Text>Guitar Practice Log</Text>
           <Icon name="music" size={25} />
         </Text>
+        <Timer duration={10} />
         <Navigation navigation={this.props.navigation} />
       </View>
     );

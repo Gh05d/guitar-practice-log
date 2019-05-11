@@ -14,5 +14,6 @@ class Practice extends React.Component {
     );
   }
 }
+//  this.props.navigation.setParams({ lectionTitle: lections.name });
 
 export default Practice;
