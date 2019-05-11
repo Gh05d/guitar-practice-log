@@ -8,6 +8,7 @@ import {
   ScrollView,
   TouchableOpacity
 } from "react-native";
+import { WebView } from "react-native-webview";
 import YTSearch from "youtube-api-search";
 import { YOUTUBE_API } from "../apiKeys";
 
@@ -17,13 +18,16 @@ export default class VideoSearch extends React.Component {
   searchVideo = async video => {
     await this.setState({ video });
 
-    if (this.state.video.length > 5) {
+    if (this.state.video.length > 3) {
       try {
-        await YTSearch({ key: YOUTUBE_API, term: this.state.video }, videos => {
-          if (videos.length > 0) {
-            this.setState({ videos });
+        await YTSearch(
+          { key: YOUTUBE_API, term: `${this.state.video} guitar tutorial` },
+          videos => {
+            if (videos.length > 0) {
+              this.setState({ videos });
+            }
           }
-        });
+        );
       } catch (err) {
         console.log(err);
       }
@@ -47,8 +51,7 @@ export default class VideoSearch extends React.Component {
                 key={video.etag}
                 style={styles.videoContainer}
                 disabled={this.state.loading}
-                delayLongPress={100}
-                onPress={() => {
+                onLongPress={() => {
                   this.props.setVideo({
                     title: video.snippet.title,
                     data: {
@@ -62,12 +65,15 @@ export default class VideoSearch extends React.Component {
                   this.props.closeModal();
                 }}>
                 <Text style={styles.videoTitle}>{video.snippet.title}</Text>
-                <ImageBackground
-                  source={{ uri: video.snippet.thumbnails.medium.url }}
-                  style={{
-                    ...styles.videoPic,
-                    height: video.snippet.thumbnails.medium.height
+
+                <WebView
+                  source={{
+                    uri: `https://youtube.com/embed/${video.id.videoId}`
                   }}
+                  renderLoading={() => (
+                    <Text>{`Loading ${video.snippet.title}...`}</Text>
+                  )}
+                  style={styles.webview}
                 />
                 <Text>{video.snippet.description}</Text>
               </TouchableOpacity>
@@ -97,5 +103,11 @@ const styles = StyleSheet.create({
     elevation: 1
   },
   videoTitle: { color: "black" },
-  videoPic: { width: "100%", alignSelf: "stretch" }
+  webview: {
+    marginTop: 20,
+    height: 200,
+    width: 320,
+    alignSelf: "stretch",
+    flex: 1
+  }
 });

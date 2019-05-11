@@ -24,9 +24,6 @@ export default class TypeSelector extends React.Component {
           />
         );
 
-      case "Pdf":
-        return <Text>{this.state.type}</Text>;
-
       case "Songsterr":
         return (
           <MusicSearch
@@ -34,6 +31,9 @@ export default class TypeSelector extends React.Component {
             setSong={this.props.saveItem}
           />
         );
+
+      case "Pdf":
+        return <Text>{this.state.type}</Text>;
     }
   };
 

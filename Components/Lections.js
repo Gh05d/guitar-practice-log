@@ -1,60 +1,63 @@
 import React from "react";
-import { StyleSheet, View, Button, FlatList } from "react-native";
+import { StyleSheet, Text, View, Button, FlatList } from "react-native";
+import AsyncStorage from "@react-native-community/async-storage";
 
 export default class Lections extends React.Component {
+  state = { lections: null };
   static navigationOptions = {
     title: "Lections"
   };
 
+  componentDidMount = async () => {
+    try {
+      const lections = await AsyncStorage.getItem("lections");
+
+      if (lections !== null) {
+        await this.setState({ lections: JSON.parse(lections) });
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   render() {
+    if (!this.state.lections) {
+      return (
+        <View style={styles.container}>
+          <Text>You haven't created any Lessons yet</Text>
+          <Button
+            onPress={() => this.props.navigation.navigate("NewLection")}
+            title="Create your first lesson"
+          />
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
         <FlatList
-          data={[
-            { key: "Lection 1" },
-            { key: "Lection 2" },
-            { key: "Lection 3" },
-            { key: "Lection 4" },
-            { key: "Lection 5" },
-            { key: "Lection 6" },
-            { key: "Lection 7" },
-            { key: "Lection 8" },
-            { key: "Lection 9" },
-            { key: "Lection 11" },
-            { key: "Lection 12" },
-            { key: "Lection 13" },
-            { key: "Lection 14" },
-            { key: "Lection 15" },
-            { key: "Lection 16" },
-            { key: "Lection 17" },
-            { key: "Lection 18" },
-            { key: "Lection 19" },
-            { key: "Lection 21" },
-            { key: "Lection 22" },
-            { key: "Lection 23" },
-            { key: "Lection 24" },
-            { key: "Lection 25" },
-            { key: "Lection 26" },
-            { key: "Lection 27" },
-            { key: "Lection 28" },
-            { key: "Lection 29" }
-          ]}
+          data={this.state.lections}
+          keyExtractor={item => item.name}
           renderItem={({ item }) => (
             <View style={styles.lectionButton}>
               <Button
-                title={item.key}
+                title={item.name}
                 color="blueviolet"
-                onPress={() => console.warn(this.props)}
+                onPress={() =>
+                  this.props.navigation.navigate("Lection", {
+                    name: item.name
+                  })
+                }
               />
             </View>
           )}
           contentContainerStyle={styles.lections}
         />
+
         <View style={styles.newButton}>
           <Button
             title="+"
             color="crimson"
-            onPress={() => console.warn("Create new lection")}
+            onPress={() => this.props.navigation.navigate("NewLection")}
           />
         </View>
       </View>
@@ -65,7 +68,7 @@ export default class Lections extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 10,
+    padding: 20,
     justifyContent: "space-between"
   },
   lections: {
@@ -73,7 +76,8 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   lectionButton: {
-    marginBottom: 20
+    marginBottom: 20,
+    width: 200
   },
   newButton: {
     position: "absolute",

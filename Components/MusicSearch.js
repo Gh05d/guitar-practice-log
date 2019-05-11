@@ -1,10 +1,25 @@
 import React from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  TouchableOpacity
+} from "react-native";
 import axios from "axios";
 import { ScrollView } from "react-native-gesture-handler";
+import { WebView } from "react-native-webview";
 
 export default class MusicSearch extends React.Component {
-  state = { song: "", songs: [], loading: false, songId: null, error: null };
+  state = {
+    song: "",
+    title: "",
+    songs: [],
+    loading: false,
+    songId: null,
+    error: null
+  };
 
   searchSong = async song => {
     await this.setState({ song });
@@ -24,43 +39,22 @@ export default class MusicSearch extends React.Component {
     }
   };
 
-  fetchSong = async (songId, title) => {
+  fetchSong = async () => {
     await this.setState({ loading: true, error: null });
-
+    const { title, songId } = this.state;
     try {
       const { data } = await axios(
         `http://www.songsterr.com/a/wa/song?id=${songId}`
       );
 
-      await this.props.setSong({ title, data, type: "tab" });
+      await this.props.setSong({ title, songId, data, type: "tab" });
       this.props.closeModal();
     } catch (err) {
-      console.log("LOG: MusicSearch -> fetchSong -> err", err);
       await this.setState({ loading: false, error: err });
     }
   };
 
   render() {
-    // if (this.state.songUrl) {
-    //   console.log(this.state.songUrl.data);
-    //   Object.keys(this.state.songUrl).map(url => console.log(url));
-    //   return (
-    //     <WebView
-    //       originWhitelist={["*"]}
-    //       source={{
-    //         html: this.state.songUrl.data
-    //         //  uri: `http://www.songsterr.com/a/wa/song?id=${this.state.songId}`
-    //       }}
-    //       onLoad={syntheticEvent => console.log(syntheticEvent)}
-    //       onLoadEnd={syntheticEvent => console.log("Ended", syntheticEvent)}
-    //       renderError={errorName => <Error name={errorName} />}
-    //       startInLoadingState={true}
-    //       renderLoading={() => <Text>Loading...</Text>}
-    //       //  style={{marginTop: 20}}
-    //     />
-    //   );
-    // }
-
     return (
       <View style={styles.container}>
         <TextInput
@@ -69,6 +63,24 @@ export default class MusicSearch extends React.Component {
           autoFocus={true}
           onChangeText={this.searchSong}
         />
+
+        {this.state.songId && (
+          <TouchableOpacity
+            style={styles.tabContainer}
+            onLongPress={this.fetchSong}>
+            <WebView
+              source={{
+                uri: `http://www.songsterr.com/a/wa/song?id=${
+                  this.state.songId
+                }`
+              }}
+              renderLoading={() => (
+                <Text>{`Loading ${this.state.song}...`}</Text>
+              )}
+              style={styles.webview}
+            />
+          </TouchableOpacity>
+        )}
 
         {this.state.error && (
           <Text>Something went wrong. Couldn't save Song.</Text>
@@ -81,10 +93,10 @@ export default class MusicSearch extends React.Component {
                 <Button
                   disabled={this.state.loading}
                   title={`${song.artist.nameWithoutThePrefix} - ${song.title}`}
-                  color="lightblue"
-                  onPress={() => this.fetchSong(song.id, song.title)}
-
-                  // onPress={() => this.setState({ songId: song.id })}
+                  color="midnightblue"
+                  onPress={() =>
+                    this.setState({ songId: song.id, title: song.title })
+                  }
                 />
               </View>
             ))}
@@ -97,5 +109,17 @@ export default class MusicSearch extends React.Component {
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center" },
-  song: { marginTop: 10, marginBottom: 10 }
+  song: { marginTop: 10, marginBottom: 10 },
+  tabContainer: {
+    marginTop: 10,
+    marginBottom: 10,
+    padding: 10,
+    alignItems: "center"
+  },
+  webview: {
+    height: 200,
+    width: 320,
+    alignSelf: "stretch",
+    flex: 1
+  }
 });
